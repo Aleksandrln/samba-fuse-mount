@@ -1,0 +1,5 @@
+{
+  "CLIENT_SECRETS_FILE":"settings/client_secret.json",
+  "SCOPES": ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/userinfo.profile"],
+  "URL_OAUTH_REDIRECT": "http://{}/oauth2callback"
+}
