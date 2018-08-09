@@ -1,16 +1,20 @@
-import uuid, os
+import os
+import uuid
+
+
 class SessionManager(object):
-    sessions={}
+    sessions = {}
 
     @classmethod
     def get(cls, id):
-       return cls.sessions.get(id)
+        return cls.sessions.get(id)
 
     @classmethod
     def new_user(cls, user_name=''):
         id = str(uuid.uuid1())
         cls.sessions[id] = Session(id, user_name)
         return id
+
 
 class Session(object):
     def __init__(self, uuid, user_name):
@@ -36,6 +40,10 @@ class Session(object):
         self.user_name = data['name']
 
     def __iter__(self):
-        for k, v in {'id': self._uuid, 'user_name': self.user_name, 'fuse_dir': self.working_dir,
-                     'mount_dir': self.mount_dir, }.iteritems():
+        for k, v in {
+            'id': self._uuid,
+            'user_name': self.user_name,
+            'fuse_dir': self.working_dir,
+            'mount_dir': self.mount_dir,
+        }.iteritems():
             yield k, v

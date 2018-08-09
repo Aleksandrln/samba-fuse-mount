@@ -1,18 +1,20 @@
 import os
 
+import file
 import google_auth_oauthlib.flow
-import tornado.web
-import tornado.web
 import requests
-from settings import Settings
-import file , system_call
+import system_call
+from flask_restful import Resource
 from session import SessionManager
+from settings import Settings
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
-class BaseHandler(tornado.web.RequestHandler):
-    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(Settings['CLIENT_SECRETS_FILE'],
-                                                                   scopes=Settings['SCOPES'])
+
+class BaseHandler(Resource):
+    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
+        Settings['CLIENT_SECRETS_FILE'], scopes=Settings['SCOPES']
+    )
 
     def get_current_user(self):
         user_id = self.get_secure_cookie('user_id')
@@ -47,7 +49,10 @@ class MainHandler(BaseHandler):
             session.credentials = self.flow.credentials.__dict__
 
             result = requests.get(
-                'https://www.googleapis.com/oauth2/v1/userinfo?access_token={}'.format(session.credentials.get('token')))
+                'https://www.googleapis.com/oauth2/v1/userinfo?access_token={}'.format(
+                    session.credentials.get('token')
+                )
+            )
             self.current_user.set_fields(result.json())
 
             self.config_manager = file.ConfigManager(session=session)

@@ -1,27 +1,10 @@
-import tornado.web
-import tornado.ioloop
 import api
+from flask import Flask
+from flask_restful import Api
 
+app = Flask(__name__)
+restful_api = Api(app)
+restful_api.add_resource(api.MainHandler, *[r"/", r"/oauth2callback"])
 
-class Application(tornado.web.Application):
-    def __init__(self, debug=False):
-        handlers = [
-            (r"/", api.MainHandler),
-            (r"/oauth2callback", api.MainHandler),
-            ]
-        settings = dict(
-            login_url='/auth/login',
-            cookie_secret='awergjlpokj',
-            # template_path=os.path.join(os.path.dirname(__file__), 'webim/templates'),
-            # static_path=os.path.join(os.path.dirname(__file__), 'static'),
-            xsrf_cookies=False,
-            debug=debug,
-        )
-        tornado.web.Application.__init__(self, handlers, **settings)
-
-
-
-if __name__ == "__main__":
-    app = Application()
-    app.listen(8080)
-    tornado.ioloop.IOLoop.current().start()
+if __name__ == '__main__':
+    app.run(debug=True, host='127.0.0.1', port=8080)
