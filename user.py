@@ -1,27 +1,27 @@
 import os
 import uuid
 
+# class SessionManager(object):
+#     sessions = {}
+#
+#     @classmethod
+#     def get(cls, id):
+#         return cls.sessions.get(id)
+#
+#     @classmethod
+#     def new_user(cls, user_name=''):
+#         id = str(uuid.uuid1())
+#         cls.sessions[id] = User(id, user_name)
+#         return id
 
-class SessionManager(object):
-    sessions = {}
 
-    @classmethod
-    def get(cls, id):
-        return cls.sessions.get(id)
-
-    @classmethod
-    def new_user(cls, user_name=''):
-        id = str(uuid.uuid1())
-        cls.sessions[id] = Session(id, user_name)
-        return id
-
-
-class Session(object):
-    def __init__(self, uuid, user_name):
+class User(object):
+    def __init__(self, uuid=None, user_name=None):
         self._uuid = uuid
         self.working_dir = None
         self.mount_dir = None
-        self.user_name = user_name
+        if user_name:
+            self.user_name = user_name
         self.credentials = None
 
     @property
@@ -38,6 +38,7 @@ class Session(object):
     def set_fields(self, data):
         self._uuid = data['id']
         self.user_name = data['name']
+        return self
 
     def __iter__(self):
         for k, v in {

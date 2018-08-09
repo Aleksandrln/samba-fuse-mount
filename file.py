@@ -1,15 +1,15 @@
+import json
 import os
 from collections import OrderedDict
-from csv import DictReader, DictWriter
 
 
 class ConfigManager(object):
-    def __init__(self, session):
-        self.session = session
+    def __init__(self, user):
+        self.user = user
         self._create_dir()
 
     def _create_dir(self):
-        for dir in self.session.working_dir, self.session.mount_dir:
+        for dir in self.user.working_dir, self.user.mount_dir:
             if not os.path.exists(dir):
                 os.makedirs(dir)
 
@@ -19,7 +19,7 @@ class ConfigManager(object):
             return OrderedDict(x.strip().split('=') for x in content)
 
     def _save_config(self, config, config_name):
-        with open(os.path.join(self.session.working_dir, config_name), 'w') as csvfile:
+        with open(os.path.join(self.user.working_dir, config_name), 'w') as csvfile:
             for item in config.items():
                 csvfile.writelines('='.join(item) + '\n')
 
@@ -42,21 +42,28 @@ class ConfigManager(object):
         self._save_config(config, 'state')
 
     def mount_disk(self):
-        os.system('fusermount -u "{}"'.format(self.session.mount_dir))
+        os.system('fusermount -u "{}"'.format(self.user.mount_dir))
         os.system(
             'google-drive-ocamlfuse -label "{}" -o uid=$(id -u),gid=$(id -g),allow_other "{}"'.format(
-                self.session.user_name, self.session.mount_dir
+                self.user.user_name, self.user.mount_dir
             )
         )
 
 
 class DbFile(object):
-    file = 'mount.csv'
-    fieldnames = ['id', 'user_name', 'fuse_dir', 'mount_path', 'mounted']
+    file = 'mount.json'
+    # fieldnames = ['id', 'user_name', 'fuse_dir', 'mount_path', 'mounted']
 
     @classmethod
-    def add(cls, session):
-        with open(cls.file, 'w') as csvfile:
-            writer = DictWriter(csvfile, fieldnames=cls.fieldnames)
-            data = dict(session)
-            writer.writerow(dict(data, mounted=True))
+    def get_all(cls):
+        with open(cls.file, 'r') as file:
+            return json.load(file)
+
+    @classmethod
+    def add(cls, user):
+        with open(cls.file, 'r+') as file:
+            user_data = dict(user)
+            json_data = json.load(file)
+            json_data[user_data['id']] = user_data
+            file.seek(0)
+            json.dump(json_data, file)
